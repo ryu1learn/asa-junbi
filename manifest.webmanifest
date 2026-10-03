@@ -1,0 +1,19 @@
+{
+  "name": "あさのじゅんび",
+  "short_name": "あさじゅんび",
+  "description": "1週間の朝ごはんと朝のやること",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff8ea",
+  "theme_color": "#fff6df",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
