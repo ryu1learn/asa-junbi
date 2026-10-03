@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff6df">
+  <meta name="description" content="1週間の朝ごはんと、朝のやることを自分で確認できる家族向けPWA">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  <title>あさのじゅんび</title>
+  <style>
+    :root {
+      --bg: #fff8ea;
+      --panel: #ffffff;
+      --ink: #332b25;
+      --muted: #786e64;
+      --line: #eadcc7;
+      --accent: #f0a53a;
+      --accent-soft: #fff0cb;
+      --done: #e1f4df;
+      --done-line: #86bd83;
+      --shadow: 0 8px 24px rgba(84, 62, 30, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Noto Sans JP", "Hiragino Sans", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button { font: inherit; }
+
+    .app {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 18px 14px 40px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 6vw, 48px);
+      letter-spacing: .04em;
+    }
+
+    .today {
+      color: var(--muted);
+      font-weight: 800;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    h2 {
+      margin: 22px 0 8px;
+      font-size: clamp(22px, 4.5vw, 30px);
+    }
+
+    .hint {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .week {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(124px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding: 2px 2px 10px;
+      scroll-snap-type: x proximity;
+    }
+
+    .day {
+      min-width: 124px;
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+      scroll-snap-align: start;
+    }
+
+    .day.current {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .day-name {
+      text-align: center;
+      font-size: 26px;
+      font-weight: 950;
+    }
+
+    .today-badge {
+      display: block;
+      height: 20px;
+      margin: 0 0 6px;
+      color: #9a6111;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .food {
+      width: 100%;
+      min-height: 72px;
+      margin-top: 7px;
+      border: 2px solid var(--line);
+      border-radius: 15px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 950;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .food:active { transform: scale(.98); }
+
+    .food:focus-visible,
+    .todo:focus-visible,
+    .reset:focus-visible {
+      outline: 4px solid rgba(240, 165, 58, .35);
+      outline-offset: 2px;
+    }
+
+    .emoji {
+      display: block;
+      font-size: 31px;
+      line-height: 1.15;
+      margin-bottom: 2px;
+    }
+
+    .bottom {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(260px, .75fr);
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .todos {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .todo {
+      min-height: 84px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      padding: 12px 14px;
+      color: var(--ink);
+      text-align: left;
+      font-size: 20px;
+      font-weight: 950;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .todo.done {
+      background: var(--done);
+      border-color: var(--done-line);
+    }
+
+    .check {
+      width: 38px;
+      height: 38px;
+      flex: 0 0 38px;
+      display: grid;
+      place-items: center;
+      border: 3px solid #b9aa99;
+      border-radius: 11px;
+      background: #fff;
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .todo.done .check { border-color: var(--done-line); }
+    .todo.done .label { text-decoration: line-through; color: #55705a; }
+
+    .progress {
+      margin-top: 12px;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .progress.complete {
+      color: #277638;
+      font-size: 19px;
+    }
+
+    .times {
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .time-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 2px 13px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .time-row:last-child { border-bottom: 0; }
+
+    .time-label {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .time {
+      font-size: 29px;
+      font-weight: 950;
+      letter-spacing: .02em;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .reset {
+      min-height: 44px;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--muted);
+      padding: 8px 14px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    @media (max-width: 720px) {
+      .app { padding-top: 14px; }
+      header { align-items: start; }
+      .today { font-size: 13px; }
+      .week { grid-template-columns: repeat(7, 136px); }
+      .day { min-width: 136px; }
+      .bottom { grid-template-columns: 1fr; }
+      .todos { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .food, .todo { transition: transform .08s ease, background-color .15s ease, border-color .15s ease; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>あさのじゅんび</h1>
+      <div id="todayText" class="today" aria-live="polite"></div>
+    </header>
+
+    <section aria-labelledby="mealHeading">
+      <h2 id="mealHeading">こんしゅうの あさごはん</h2>
+      <p class="hint">タップすると「ごはん ↔ パン」「たまご ↔ ヨーグルト」がかわるよ。</p>
+      <div id="week" class="week"></div>
+    </section>
+
+    <section aria-labelledby="todoHeading">
+      <h2 id="todoHeading">あさの やること</h2>
+      <div class="bottom">
+        <div class="card">
+          <div id="todos" class="todos"></div>
+          <div id="progress" class="progress" aria-live="polite"></div>
+          <div class="actions">
+            <button id="resetTodos" class="reset" type="button">チェックをもどす</button>
+          </div>
+        </div>
+
+        <div class="card times" aria-label="あさのじかん">
+          <div class="time-row">
+            <div class="time-label">🌅 おきる</div>
+            <div class="time">6:30</div>
+          </div>
+          <div class="time-row">
+            <div class="time-label">🧢 おしたく</div>
+            <div class="time">7:30</div>
+          </div>
+          <div class="time-row">
+            <div class="time-label">🎒 しゅっぱつ</div>
+            <div class="time">7:45</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const DAY_NAMES = ["日", "月", "火", "水", "木", "金", "土"];
+      const ORDER = [
+        { jsDay: 1, label: "月" },
+        { jsDay: 2, label: "火" },
+        { jsDay: 3, label: "水" },
+        { jsDay: 4, label: "木" },
+        { jsDay: 5, label: "金" },
+        { jsDay: 6, label: "土" },
+        { jsDay: 0, label: "日" }
+      ];
+
+      const DEFAULT_MEALS = [
+        { main: "ごはん", side: "たまご" },
+        { main: "パン", side: "ヨーグルト" },
+        { main: "ごはん", side: "たまご" },
+        { main: "パン", side: "たまご" },
+        { main: "ごはん", side: "ヨーグルト" },
+        { main: "パン", side: "ヨーグルト" },
+        { main: "ごはん", side: "ヨーグルト" }
+      ];
+
+      const FOOD = {
+        "ごはん": { icon: "🍚", next: "パン" },
+        "パン": { icon: "🍞", next: "ごはん" },
+        "たまご": { icon: "🥚", next: "ヨーグルト" },
+        "ヨーグルト": { icon: "🥣", next: "たまご" }
+      };
+
+      const TODO_ITEMS = [
+        { id: "breakfast", icon: "🍚", label: "ごはん" },
+        { id: "toilet", icon: "🚽", label: "トイレ" },
+        { id: "change", icon: "👕", label: "おきがえ" },
+        { id: "bag", icon: "🎒", label: "にもつチェック" }
+      ];
+
+      const now = new Date();
+      const dateKey = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, "0"),
+        String(now.getDate()).padStart(2, "0")
+      ].join("-");
+
+      const MEAL_KEY = "asa-junbi-meals-v1";
+      const TODO_KEY = "asa-junbi-todos-" + dateKey;
+
+      function copy(value) {
+        return JSON.parse(JSON.stringify(value));
+      }
+
+      function load(key, fallback) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : copy(fallback);
+        } catch {
+          return copy(fallback);
+        }
+      }
+
+      let meals = load(MEAL_KEY, DEFAULT_MEALS);
+      let done = load(TODO_KEY, {});
+
+      document.getElementById("todayText").textContent =
+        (now.getMonth() + 1) + "月" + now.getDate() + "日（" + DAY_NAMES[now.getDay()] + "）";
+
+      function saveMeals() {
+        localStorage.setItem(MEAL_KEY, JSON.stringify(meals));
+      }
+
+      function saveTodos() {
+        localStorage.setItem(TODO_KEY, JSON.stringify(done));
+      }
+
+      function foodButton(name, onClick) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "food";
+        button.setAttribute("aria-label", name + "。タップで切り替え");
+        button.innerHTML =
+          '<span class="emoji" aria-hidden="true">' + FOOD[name].icon + "</span>" +
+          "<span>" + name + "</span>";
+        button.addEventListener("click", onClick);
+        return button;
+      }
+
+      function renderMeals() {
+        const week = document.getElementById("week");
+        week.innerHTML = "";
+
+        ORDER.forEach((dayDef, index) => {
+          if (!meals[index] || !FOOD[meals[index].main] || !FOOD[meals[index].side]) {
+            meals[index] = copy(DEFAULT_MEALS[index]);
+          }
+
+          const card = document.createElement("article");
+          const isToday = now.getDay() === dayDef.jsDay;
+          card.className = "day" + (isToday ? " current" : "");
+
+          const dayName = document.createElement("div");
+          dayName.className = "day-name";
+          dayName.textContent = dayDef.label;
+
+          const badge = document.createElement("span");
+          badge.className = "today-badge";
+          badge.textContent = isToday ? "きょう" : "";
+
+          const main = foodButton(meals[index].main, () => {
+            meals[index].main = FOOD[meals[index].main].next;
+            saveMeals();
+            renderMeals();
+          });
+
+          const side = foodButton(meals[index].side, () => {
+            meals[index].side = FOOD[meals[index].side].next;
+            saveMeals();
+            renderMeals();
+          });
+
+          card.append(dayName, badge, main, side);
+          week.appendChild(card);
+        });
+      }
+
+      function renderTodos() {
+        const list = document.getElementById("todos");
+        list.innerHTML = "";
+
+        TODO_ITEMS.forEach(item => {
+          const isDone = Boolean(done[item.id]);
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "todo" + (isDone ? " done" : "");
+          button.setAttribute("aria-pressed", isDone ? "true" : "false");
+          button.innerHTML =
+            '<span class="check" aria-hidden="true">' + (isDone ? "✓" : "") + "</span>" +
+            '<span class="emoji" aria-hidden="true">' + item.icon + "</span>" +
+            '<span class="label">' + item.label + "</span>";
+
+          button.addEventListener("click", () => {
+            done[item.id] = !done[item.id];
+            saveTodos();
+            renderTodos();
+          });
+
+          list.appendChild(button);
+        });
+
+        const count = TODO_ITEMS.filter(item => done[item.id]).length;
+        const progress = document.getElementById("progress");
+        if (count === TODO_ITEMS.length) {
+          progress.textContent = "ぜんぶできた！ 🎉 いってらっしゃい！";
+          progress.className = "progress complete";
+        } else {
+          progress.textContent = count + " / " + TODO_ITEMS.length + " できたよ";
+          progress.className = "progress";
+        }
+      }
+
+      document.getElementById("resetTodos").addEventListener("click", () => {
+        done = {};
+        saveTodos();
+        renderTodos();
+      });
+
+      renderMeals();
+      renderTodos();
+
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./sw.js").catch(() => {});
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
