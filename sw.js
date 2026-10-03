@@ -1,4 +1,4 @@
-const CACHE = "asa-junbi-v5";
+const CACHE = "asa-junbi-v6";
 const ASSETS = [
   "./",
   "./index.html",
@@ -24,6 +24,14 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
+
+  const url = new URL(event.request.url);
+
+  // Google OAuth / Calendar APIなど外部通信はキャッシュしない。
+  if (url.origin !== self.location.origin) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
 
   if (event.request.mode === "navigate") {
     event.respondWith(
