@@ -269,6 +269,155 @@
       .todos { grid-template-columns: 1fr; }
     }
 
+
+    @media (orientation: landscape) and (max-height: 520px) {
+      body {
+        overflow: hidden;
+      }
+
+      .app {
+        width: 100%;
+        max-width: none;
+        padding: 6px 8px 8px;
+      }
+
+      header {
+        margin-bottom: 4px;
+        align-items: center;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .today {
+        font-size: 12px;
+      }
+
+      h2 {
+        margin: 6px 0 4px;
+        font-size: 17px;
+      }
+
+      .hint {
+        display: none;
+      }
+
+      .week {
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 6px;
+        overflow: visible;
+        padding: 0;
+      }
+
+      .day {
+        min-width: 0;
+        border-radius: 12px;
+        padding: 5px;
+        box-shadow: none;
+      }
+
+      .day-name {
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .today-badge {
+        height: 13px;
+        margin: 1px 0 2px;
+        font-size: 9px;
+        line-height: 1.1;
+      }
+
+      .food {
+        min-height: 44px;
+        margin-top: 4px;
+        border-radius: 10px;
+        font-size: 12px;
+        padding: 2px;
+      }
+
+      .food .emoji {
+        display: inline;
+        font-size: 18px;
+        margin: 0 3px 0 0;
+      }
+
+      .bottom {
+        grid-template-columns: minmax(0, 1.8fr) minmax(180px, .8fr);
+        gap: 8px;
+      }
+
+      .card {
+        padding: 7px;
+        border-radius: 12px;
+        box-shadow: none;
+      }
+
+      .todos {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .todo {
+        min-height: 48px;
+        gap: 5px;
+        border-radius: 10px;
+        padding: 4px 6px;
+        font-size: 12px;
+      }
+
+      .todo .emoji {
+        font-size: 18px;
+        margin: 0;
+      }
+
+      .check {
+        width: 24px;
+        height: 24px;
+        flex-basis: 24px;
+        border-width: 2px;
+        border-radius: 7px;
+        font-size: 16px;
+      }
+
+      .progress {
+        margin-top: 4px;
+        font-size: 11px;
+      }
+
+      .progress.complete {
+        font-size: 12px;
+      }
+
+      .times {
+        gap: 0;
+      }
+
+      .time-row {
+        padding: 3px 0 5px;
+      }
+
+      .time-label {
+        font-size: 12px;
+      }
+
+      .time {
+        font-size: 18px;
+      }
+
+      .actions {
+        margin-top: 4px;
+      }
+
+      .reset {
+        min-height: 30px;
+        padding: 2px 8px;
+        font-size: 11px;
+        border-radius: 8px;
+      }
+    }
+
     @media (prefers-reduced-motion: no-preference) {
       .food, .todo { transition: transform .08s ease, background-color .15s ease, border-color .15s ease; }
     }
