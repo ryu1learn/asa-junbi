@@ -335,7 +335,7 @@
 
     .calendar-grid {
       display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 6px;
       align-items: start;
     }
@@ -434,13 +434,13 @@
       .todos { grid-template-columns: 1fr; }
 
       .calendar-grid {
-        grid-template-columns: repeat(7, minmax(96px, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         overflow-x: auto;
         padding-bottom: 8px;
       }
 
       .calendar-day {
-        min-width: 96px;
+        min-width: 0;
       }
 
       .calendar-toolbar {
@@ -496,7 +496,7 @@
       }
 
       .week {
-        grid-template-columns: repeat(7, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 6px;
         overflow: visible;
         padding: 0;
@@ -762,18 +762,18 @@
         <h1>かぞくのカレンダー</h1>
         <div class="today">Google カレンダー</div>
       </header>
-      <p class="calendar-note">Googleカレンダーから予定だけ取得して、このアプリ専用の週表示にしています。</p>
+      <p class="calendar-note">Googleカレンダーから予定だけ取得して、このアプリ専用の2日表示にしています。</p>
 
       <div class="calendar-toolbar">
-        <button id="prevWeek" type="button" aria-label="前の週">← 前週</button>
-        <button id="thisWeek" type="button">今週</button>
-        <button id="nextWeek" type="button" aria-label="次の週">次週 →</button>
+        <button id="prevWeek" type="button" aria-label="前の2日">← 前の2日</button>
+        <button id="thisWeek" type="button">今日</button>
+        <button id="nextWeek" type="button" aria-label="次の2日">次の2日 →</button>
         <button id="connectGoogle" class="primary" type="button">Googleに接続</button>
         <div id="calendarRange" class="calendar-range"></div>
       </div>
 
       <div id="calendarStatus" class="calendar-status" aria-live="polite">Googleに接続すると家族の予定を表示します。</div>
-      <div id="calendarGrid" class="calendar-grid" aria-label="家族の1週間の予定"></div>
+      <div id="calendarGrid" class="calendar-grid" aria-label="家族の2日分の予定"></div>
     </div>
   </main>
 
@@ -973,7 +973,7 @@
 
       let tokenClient = null;
       let accessToken = "";
-      let weekOffset = 0;
+      let dayOffset = 0;
       let identityPromise = null;
 
       function pad2(n) {
@@ -989,18 +989,10 @@
         return new Date(y, m - 1, d, 0, 0, 0, 0);
       }
 
-      function mondayOf(date) {
-        const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        const day = d.getDay();
-        const diff = day === 0 ? -6 : 1 - day;
-        d.setDate(d.getDate() + diff);
+      function displayedPeriodStart() {
+        const d = new Date();
         d.setHours(0, 0, 0, 0);
-        return d;
-      }
-
-      function displayedWeekStart() {
-        const d = mondayOf(new Date());
-        d.setDate(d.getDate() + weekOffset * 7);
+        d.setDate(d.getDate() + dayOffset);
         return d;
       }
 
@@ -1040,8 +1032,8 @@
       }
 
       function renderCalendar(events = []) {
-        const start = displayedWeekStart();
-        const end = addDays(start, 6);
+        const start = displayedPeriodStart();
+        const end = addDays(start, 1);
         calendarRange.textContent =
           (start.getMonth() + 1) + "/" + start.getDate() + " 〜 " +
           (end.getMonth() + 1) + "/" + end.getDate();
@@ -1050,7 +1042,7 @@
         const todayKey = dateKeyLocal(new Date());
         const dows = ["日", "月", "火", "水", "木", "金", "土"];
 
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 2; i++) {
           const day = addDays(start, i);
           const dayKey = dateKeyLocal(day);
           const dayEvents = events
@@ -1160,8 +1152,8 @@
           return;
         }
 
-        const start = displayedWeekStart();
-        const endExclusive = addDays(start, 7);
+        const start = displayedPeriodStart();
+        const endExclusive = addDays(start, 2);
         const params = new URLSearchParams({
           timeMin: start.toISOString(),
           timeMax: endExclusive.toISOString(),
@@ -1221,17 +1213,17 @@
       });
 
       prevWeek.addEventListener("click", async () => {
-        weekOffset -= 1;
+        dayOffset -= 2;
         await fetchWeekEvents();
       });
 
       thisWeek.addEventListener("click", async () => {
-        weekOffset = 0;
+        dayOffset = 0;
         await fetchWeekEvents();
       });
 
       nextWeek.addEventListener("click", async () => {
-        weekOffset += 1;
+        dayOffset += 2;
         await fetchWeekEvents();
       });
 
