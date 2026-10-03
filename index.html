@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#fff6df">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="description" content="1週間の朝ごはんと、朝のやることを自分で確認できる家族向けPWA">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -25,9 +27,14 @@
 
     * { box-sizing: border-box; }
 
+    html, body {
+      width: 100%;
+      min-height: 100%;
+    }
+
     body {
       margin: 0;
-      min-height: 100vh;
+      min-height: 100dvh;
       font-family: system-ui, -apple-system, "Noto Sans JP", "Hiragino Sans", sans-serif;
       color: var(--ink);
       background: var(--bg);
@@ -38,8 +45,13 @@
 
     .app {
       width: min(1120px, 100%);
+      min-height: 100dvh;
       margin: 0 auto;
-      padding: 18px 14px 40px;
+      padding:
+        calc(18px + env(safe-area-inset-top))
+        calc(14px + env(safe-area-inset-right))
+        calc(40px + env(safe-area-inset-bottom))
+        calc(14px + env(safe-area-inset-left));
     }
 
     header {
@@ -425,7 +437,9 @@
     }
 
     @media (max-width: 720px) {
-      .app { padding-top: 14px; }
+      .app {
+        padding-top: calc(14px + env(safe-area-inset-top));
+      }
       header { align-items: start; }
       .today { font-size: 13px; }
       .week { grid-template-columns: repeat(7, 136px); }
@@ -464,13 +478,19 @@
 
     @media (orientation: landscape) and (max-height: 520px) {
       body {
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
       }
 
       .app {
         width: 100%;
         max-width: none;
-        padding: 6px 8px 8px;
+        min-height: 100dvh;
+        padding:
+          calc(4px + env(safe-area-inset-top))
+          calc(8px + env(safe-area-inset-right))
+          calc(6px + env(safe-area-inset-bottom))
+          calc(8px + env(safe-area-inset-left));
       }
 
       header {
@@ -702,6 +722,40 @@
         padding: 14px 4px;
         font-size: 15px;
       }
+    }
+
+    @media (orientation: landscape) and (max-height: 430px) {
+      h1 { font-size: 20px; }
+      h2 { margin: 4px 0 3px; font-size: 15px; }
+
+      .tabs { margin-bottom: 3px; }
+      .tab { min-height: 30px; }
+
+      .day { padding: 4px; }
+      .day-name { font-size: 16px; }
+      .food {
+        min-height: 38px;
+        margin-top: 3px;
+      }
+
+      .bottom { gap: 6px; }
+      .card { padding: 5px; }
+      .todo {
+        min-height: 42px;
+        padding: 3px 5px;
+        font-size: 11px;
+      }
+
+      .time-row { padding: 2px 0 4px; }
+      .time { font-size: 16px; }
+
+      .calendar-toolbar { margin: 2px 0 3px; }
+      .calendar-status { min-height: 14px; margin-bottom: 2px; }
+      .calendar-day { min-height: 190px; }
+      .calendar-day-head { padding: 5px 4px 4px; }
+      .calendar-events { gap: 4px; padding: 4px; }
+      .calendar-event { padding: 5px 6px; }
+      .event-title { font-size: 16px; }
     }
 
     @media (prefers-reduced-motion: no-preference) {
