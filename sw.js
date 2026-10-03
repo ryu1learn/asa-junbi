@@ -1,4 +1,4 @@
-const CACHE = "asa-junbi-v3";
+const CACHE = "asa-junbi-v4";
 const ASSETS = [
   "./",
   "./index.html",
