@@ -259,6 +259,56 @@
       cursor: pointer;
     }
 
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+
+    .tab {
+      min-height: 44px;
+      flex: 1;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      color: var(--muted);
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--ink);
+    }
+
+    .calendar-wrap {
+      width: 100%;
+      overflow: hidden;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .calendar-frame {
+      display: block;
+      width: 100%;
+      height: 760px;
+      border: 0;
+      background: #fff;
+    }
+
+    .calendar-note {
+      margin: 6px 2px 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
     @media (max-width: 720px) {
       .app { padding-top: 14px; }
       header { align-items: start; }
@@ -416,6 +466,35 @@
         font-size: 11px;
         border-radius: 8px;
       }
+
+      .tabs {
+        margin-bottom: 5px;
+        gap: 6px;
+      }
+
+      .tab {
+        min-height: 34px;
+        border-radius: 9px;
+        font-size: 12px;
+      }
+
+      #calendarPage header {
+        margin-bottom: 4px;
+      }
+
+      .calendar-note {
+        margin: 2px 0 4px;
+        font-size: 10px;
+      }
+
+      .calendar-wrap {
+        border-radius: 10px;
+        box-shadow: none;
+      }
+
+      .calendar-frame {
+        height: 720px;
+      }
     }
 
     @media (prefers-reduced-motion: no-preference) {
@@ -425,12 +504,18 @@
 </head>
 <body>
   <main class="app">
-    <header>
-      <h1>あさのじゅんび</h1>
-      <div id="todayText" class="today" aria-live="polite"></div>
-    </header>
+    <nav class="tabs" aria-label="ページ切り替え">
+      <button id="morningTab" class="tab active" type="button" aria-selected="true">🌅 あさ</button>
+      <button id="calendarTab" class="tab" type="button" aria-selected="false">📅 カレンダー</button>
+    </nav>
 
-    <section aria-labelledby="mealHeading">
+    <div id="morningPage" class="page active">
+      <header>
+        <h1>あさのじゅんび</h1>
+        <div id="todayText" class="today" aria-live="polite"></div>
+      </header>
+
+      <section aria-labelledby="mealHeading">
       <h2 id="mealHeading">こんしゅうの あさごはん</h2>
       <p class="hint">タップすると「ごはん ↔ パン」「たまご ↔ ヨーグルト」がかわるよ。</p>
       <div id="week" class="week"></div>
@@ -462,7 +547,26 @@
           </div>
         </div>
       </div>
-    </section>
+      </section>
+    </div>
+
+    <div id="calendarPage" class="page">
+      <header>
+        <h1>かぞくのカレンダー</h1>
+        <div class="today">Google カレンダー</div>
+      </header>
+      <p class="calendar-note">1週間を横に表示します。上下にスクロールして予定を確認できます。</p>
+      <div class="calendar-wrap">
+        <iframe
+          id="familyCalendar"
+          class="calendar-frame"
+          title="家族共有Googleカレンダー"
+          src="https://calendar.google.com/calendar/embed?src=family16318131722654926522%40group.calendar.google.com&ctz=Asia%2FTokyo&mode=WEEK&wkst=2&showTitle=0&showCalendars=0&showTz=0"
+          frameborder="0"
+          scrolling="no">
+        </iframe>
+      </div>
+    </div>
   </main>
 
   <script>
@@ -629,6 +733,24 @@
         saveTodos();
         renderTodos();
       });
+
+      const morningTab = document.getElementById("morningTab");
+      const calendarTab = document.getElementById("calendarTab");
+      const morningPage = document.getElementById("morningPage");
+      const calendarPage = document.getElementById("calendarPage");
+
+      function showPage(page) {
+        const calendar = page === "calendar";
+        morningPage.classList.toggle("active", !calendar);
+        calendarPage.classList.toggle("active", calendar);
+        morningTab.classList.toggle("active", !calendar);
+        calendarTab.classList.toggle("active", calendar);
+        morningTab.setAttribute("aria-selected", String(!calendar));
+        calendarTab.setAttribute("aria-selected", String(calendar));
+      }
+
+      morningTab.addEventListener("click", () => showPage("morning"));
+      calendarTab.addEventListener("click", () => showPage("calendar"));
 
       renderMeals();
       renderTodos();
