@@ -160,7 +160,7 @@
 
     .weather-card {
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      grid-template-columns: auto auto minmax(0, 1fr) auto auto;
       align-items: center;
       gap: 12px;
       margin: 10px 0 14px;
@@ -169,6 +169,13 @@
       border-radius: 18px;
       background: #fff;
       box-shadow: var(--shadow);
+    }
+
+    .weather-date {
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 950;
+      white-space: nowrap;
     }
 
     .weather-icon {
@@ -628,7 +635,7 @@
       }
 
       .weather-card {
-        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-columns: auto auto minmax(0, 1fr) auto;
         gap: 8px;
         margin: 4px 0 5px;
         padding: 6px 8px;
@@ -636,6 +643,7 @@
         box-shadow: none;
       }
 
+      .weather-date { font-size: 14px; }
       .weather-icon { font-size: 28px; }
       .weather-main { gap: 8px; }
       .weather-title { font-size: 15px; }
@@ -863,10 +871,10 @@
     <div id="morningPage" class="page active">
       <header>
         <h1>あさのじゅんび</h1>
-        <div id="todayText" class="today" aria-live="polite"></div>
       </header>
 
-      <section id="weatherCard" class="weather-card" aria-label="きょうの天気">
+      <section id="weatherCard" class="weather-card" aria-label="きょうの日付と天気">
+        <div id="todayText" class="weather-date" aria-live="polite"></div>
         <div id="weatherIcon" class="weather-icon" aria-hidden="true">🌤️</div>
         <div class="weather-main">
           <div id="weatherTitle" class="weather-title">きょうの天気</div>
