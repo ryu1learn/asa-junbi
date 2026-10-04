@@ -160,7 +160,7 @@
 
     .weather-card {
       display: grid;
-      grid-template-columns: auto 1fr auto;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
       align-items: center;
       gap: 12px;
       margin: 10px 0 14px;
@@ -178,6 +178,11 @@
 
     .weather-main {
       min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      overflow: hidden;
     }
 
     .weather-title {
@@ -186,21 +191,22 @@
     }
 
     .weather-detail {
-      margin-top: 2px;
+      margin-top: 0;
       color: var(--muted);
-      font-size: 14px;
-      font-weight: 800;
+      font-size: 16px;
+      font-weight: 850;
+      white-space: nowrap;
     }
 
     .weather-advice {
       text-align: right;
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 950;
       white-space: nowrap;
     }
 
     .weather-refresh {
-      grid-column: 1 / -1;
+      grid-column: auto;
       justify-self: end;
       min-height: 36px;
       border: 2px solid var(--line);
@@ -622,18 +628,19 @@
       }
 
       .weather-card {
-        grid-template-columns: auto 1fr auto;
-        gap: 7px;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 8px;
         margin: 4px 0 5px;
         padding: 6px 8px;
         border-radius: 10px;
         box-shadow: none;
       }
 
-      .weather-icon { font-size: 26px; }
-      .weather-title { font-size: 13px; }
-      .weather-detail { margin-top: 0; font-size: 10px; }
-      .weather-advice { font-size: 11px; }
+      .weather-icon { font-size: 28px; }
+      .weather-main { gap: 8px; }
+      .weather-title { font-size: 15px; }
+      .weather-detail { margin-top: 0; font-size: 14px; }
+      .weather-advice { font-size: 14px; }
       .weather-refresh {
         display: none;
       }
@@ -866,7 +873,7 @@
           <div id="weatherDetail" class="weather-detail">現在地の天気を取得します</div>
         </div>
         <div id="weatherAdvice" class="weather-advice">—</div>
-        <button id="weatherRefresh" class="weather-refresh" type="button">天気を更新</button>
+        <button id="weatherRefresh" class="weather-refresh" type="button">更新</button>
       </section>
 
       <section aria-labelledby="mealHeading">
@@ -1097,7 +1104,7 @@
           weatherIcon.textContent = presentation.icon;
           weatherTitle.textContent = presentation.label + "　" + temp + "℃";
           weatherDetail.textContent =
-            "最高 " + max + "℃ / 最低 " + min + "℃　☔ " + rain + "%";
+            "↑" + max + "℃ ↓" + min + "℃　☔" + rain + "%";
 
           if (rain >= 50) {
             weatherAdvice.textContent = "🌂 かさ";
